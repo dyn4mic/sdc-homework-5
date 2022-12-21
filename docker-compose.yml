@@ -1,0 +1,17 @@
+
+version: '3.8'
+
+services:
+  model-server:
+    image: tensorflow/serving
+    command:
+    - --model_name=arbitrary-image-stylization
+    - --model_base_path=/models/model/
+    - --rest_api_port=8501
+    ports:
+    - 8501:8501
+    tty: true
+    volumes:
+      - type: bind
+        source: ./content/
+        target: /models/
