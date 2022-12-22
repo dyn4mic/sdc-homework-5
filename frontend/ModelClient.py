@@ -1,12 +1,9 @@
 import functools
-import os
-import json
-
-import numpy as np
 import tensorflow as tf
-import streamlit as st
-
+import json
 import requests
+import os
+
 
 def crop_center(image):
   """Returns a cropped square image."""
@@ -60,30 +57,17 @@ content_images = {k: load_image(v, (content_image_size, content_image_size)) for
 style_images = {k: load_image(v, (style_image_size, style_image_size)) for k, v in style_urls.items()}
 style_images = {k: tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME') for k, style_image in style_images.items()}
 
+def getContent(content):
+    return content_images[content]
+def getStyle(style):
+    return style_images[style]
 
+def getGeneration(content,style):
+    headers = {"content-type": "application/json"}
+    
+    data = json.dumps({"signature_name": "serving_default",
+                    "instances": [{"placeholder": content_images[content].numpy().tolist()[0],
+                                    "placeholder_1": style_images[style].numpy().tolist()[0]}]})
 
-def showGeneration(content,style):
-  st.write('Generation: ')
-  headers = {"content-type": "application/json"}
-  #show_n([content_images[content_name], style_images[style_name], stylized_image],titles=['Original content image', 'Style image', 'Stylized image'])
-  data = json.dumps({"signature_name": "serving_default",
-                   "instances": [{"placeholder": content_images[content].numpy().tolist()[0],
-                                 "placeholder_1": style_images[style].numpy().tolist()[0]}]})
-
-  response=requests.post('http://localhost:8501/v1/models/arbitrary-image-stylization:predict', data=data, headers=headers)
-  st.image(np.array(response.json()['predictions']))
-
-content=content=st.sidebar.selectbox('Select Content',content_images.keys())
-style=style=st.sidebar.selectbox('Select Style',style_images.keys())
-col1,col2,col3=st.columns(3)
-with col1:
-  st.write('Content: ',content)
-  st.image(content_images[content].numpy())
-with col2:
-  st.write('Style: ',style)
-  st.image(style_images[style].numpy())
-with col3:
-  showGeneration(content,style)
-
-
-
+    response=requests.post('http://model-server:8501/v1/models/arbitrary-image-stylization:predict', data=data, headers=headers)
+    return response

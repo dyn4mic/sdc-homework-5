@@ -15,3 +15,8 @@ services:
       - type: bind
         source: ./content/
         target: /models/
+  dash:
+    build: frontend
+    image: dyn4mic/homework_5_paasche
+    ports:
+      - 8050:8050

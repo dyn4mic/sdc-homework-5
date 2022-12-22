@@ -1,3 +1,4 @@
 magent*
 content/model/1/variables/*
 content/model/1/*
+__pycache__
