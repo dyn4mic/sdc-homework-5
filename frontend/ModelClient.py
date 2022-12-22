@@ -5,6 +5,7 @@ import requests
 import os
 
 
+
 def crop_center(image):
   """Returns a cropped square image."""
   shape = image.shape
@@ -26,6 +27,7 @@ def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
       channels=3, dtype=tf.float32)[tf.newaxis, ...]
   img = crop_center(img)
   img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
+  
   return img
 
 
@@ -62,12 +64,11 @@ def getContent(content):
 def getStyle(style):
     return style_images[style]
 
-def getGeneration(content,style):
+def getGeneration(content,style,baseuri='model-server'):
     headers = {"content-type": "application/json"}
     
     data = json.dumps({"signature_name": "serving_default",
                     "instances": [{"placeholder": content_images[content].numpy().tolist()[0],
                                     "placeholder_1": style_images[style].numpy().tolist()[0]}]})
-
-    response=requests.post('http://model-server:8501/v1/models/arbitrary-image-stylization:predict', data=data, headers=headers)
+    response=requests.post(f'http://{baseuri}:8501/v1/models/arbitrary-image-stylization:predict', data=data, headers=headers)
     return response
