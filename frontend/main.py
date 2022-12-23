@@ -9,7 +9,7 @@ import ModelClient as model
 
 def showGeneration(content,style):
   st.write('Generation: ')
-  response=model.getGeneration(content,style)
+  response=model.getGeneration(content,style,'localhost')
   st.image(np.array(response.json()['predictions']))
 
 content=content=st.sidebar.selectbox('Select Content',model.content_images.keys())
